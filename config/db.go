@@ -1,25 +1,28 @@
 package config
 
 import (
+	"fullstack/domain"
 	"log"
 	"os"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
-	"github.com/jmoiron/sqlx"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-var DB *sqlx.DB
+var DB *gorm.DB
 
 func InitDB() {
 	dsn := os.Getenv("DATABASE_URL")
-	DB, err := sqlx.Open("pgx", dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
 
-	if err = DB.Ping(); err != nil {
+	err = db.AutoMigrate(&domain.User{}, &domain.Car{})
+	if err != nil {
 		panic(err)
 	}
 
+	DB = db
 	log.Println("Success connect Postgres")
 }
