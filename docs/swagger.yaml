@@ -1,0 +1,178 @@
+definitions:
+  domain.Car:
+    properties:
+      brand:
+        type: string
+      color:
+        type: string
+      id:
+        type: integer
+      model:
+        type: string
+      model_year:
+        type: integer
+      price:
+        type: integer
+      registration_number:
+        type: string
+      user:
+        $ref: '#/definitions/domain.User'
+      user_id:
+        type: integer
+    type: object
+  domain.User:
+    properties:
+      cars:
+        items:
+          $ref: '#/definitions/domain.Car'
+        type: array
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for fullstack leasson
+  title: Full Stack
+  version: "1.0"
+paths:
+  /api/cars:
+    get:
+      consumes:
+      - application/json
+      description: Returns a list of cars
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Car'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all cars
+      tags:
+      - cars
+    post:
+      consumes:
+      - application/json
+      description: Adds a new car to the database
+      parameters:
+      - description: Car data
+        in: body
+        name: car
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Car'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Car'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new car
+      tags:
+      - cars
+  /api/cars/{id}:
+    delete:
+      description: Deletes a car by ID
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a car
+      tags:
+      - cars
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing car by ID
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated car data
+        in: body
+        name: car
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Car'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Car'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a car
+      tags:
+      - cars
+swagger: "2.0"

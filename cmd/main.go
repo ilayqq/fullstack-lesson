@@ -2,15 +2,24 @@ package main
 
 import (
 	"fullstack/config"
-	"fullstack/domain"
 	"fullstack/internal/car"
-	"fullstack/internal/user"
+	"github.com/gin-gonic/gin"
 	"log"
 
 	"github.com/joho/godotenv"
+
+	_ "fullstack/docs"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title Full Stack
+// @version 1.0
+// @description API for fullstack leasson
+// @host localhost:8080
 func main() {
+	r := gin.Default()
+
 	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
 	}
@@ -19,19 +28,23 @@ func main() {
 
 	carRepository := car.NewRepository()
 	carService := car.NewService(carRepository)
+	carHandler := car.NewHandler(carService)
 
-	userRepository := user.NewRepository()
-	userService := user.NewService(userRepository)
+	//userRepository := user.NewRepository()
+	//userService := user.NewService(userRepository)
 
-	cars, _ := carService.GetAllCars()
-	for _, car := range cars {
-		log.Println(car)
+	api := r.Group("/api")
+	{
+		api.GET("/cars", carHandler.GetAllCars)
+		api.POST("/cars", carHandler.CreateCar)
+		api.PUT("/cars/:id", carHandler.UpdateCar)
+		api.DELETE("/cars/:id", carHandler.DeleteCar)
 	}
-	carService.Create(&domain.Car{Brand: "test", Color: "test", Model: "test", ModelYear: 123, Price: 123, RegistrationNumber: "test", UserID: 1})
-	carService.Update(&domain.Car{ID: 1, Brand: "update", Color: "update", Model: "update", ModelYear: 123, Price: 123, RegistrationNumber: "update", UserID: 1})
-	carService.Delete(&domain.Car{ID: 2})
 
-	config.DB.Create(&domain.User{ID: 1, Name: "test"})
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	userService.GetById(1)
+	err := r.Run(":8080")
+	if err != nil {
+		log.Fatal(err)
+	}
 }
